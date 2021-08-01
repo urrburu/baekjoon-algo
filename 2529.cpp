@@ -47,3 +47,52 @@ int main() {
     cout << "\n";
     return 0;
 }
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int n;
+bool check(vector<int>& l, vector<char>& c) {
+    for (int i = 0; i < c.size(); ++i) {
+        if (c[i] == '<' && l[i] > l[i + 1]) {
+            return false;
+        }
+        if (c[i] == '>' && l[i] < l[i + 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+int main() {
+    cin >> n;
+    vector<int> small(n + 1);
+    vector<int> big(n + 1);
+    vector<char> c(n);
+    for (int i = 0; i < c.size(); ++i) {
+        cin >> c[i];
+    }
+    for (int i = 0; i < small.size(); ++i) {
+        small[i] = i;
+        big[i] = 9 - i;
+    }
+    do {
+        if (check(big, c)) {
+            for (int i = 0; i < big.size(); ++i) {
+                cout << big[i];
+            }
+            cout << "\n";
+            break;
+        }
+    } while (prev_permutation(big.begin(), big.end()));
+    do {
+        if (check(small, c)) {
+            for (int i = 0; i < small.size(); ++i) {
+                cout << small[i];
+            }
+            cout << "\n";
+            break;
+        }
+    } while (next_permutation(small.begin(), small.end()));
+
+}
