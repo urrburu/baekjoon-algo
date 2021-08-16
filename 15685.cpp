@@ -70,3 +70,65 @@ int main() {
     cout << ans << '\n';
     return 0;
 }
+
+#include<iostream>
+#include<vector>
+
+using namespace std;
+bool map[101][101];
+int dx[] = { 1,0,-1,0 };
+int dy[] = { 0,-1,0,1 };
+int turn_dir(int dir) {
+	return (dir + 1) % 4;
+}
+int main() {
+	int n;
+	int cnt = 0;
+	cin >> n;
+	for (int i = 0; i < n; ++i) {
+		int x, y;
+		int dir;
+		int gen;
+		vector<int> d;
+
+		cin >> x >> y >> dir >> gen;
+		d.push_back(dir);
+		for (int j = 0; j < gen; ++j) {
+			int s = d.size();
+			for (int k = d.size() - 1; k >= 0; --k) {
+				d.push_back(turn_dir(d[k]));
+			}
+		}
+		map[x][y] = true;
+		for (int j = 0; j < d.size(); ++j) {
+			//cout << d[j] << " ";
+			x = x + dx[d[j]];
+			y = y + dy[d[j]];
+			if (x >= 0 && x < 101 && y >= 0 && y < 101) {
+				map[x][y] = true;
+			}
+
+		}
+		//cout << "\n ";
+		/*for (int i = 0; i < 101; ++i) {
+			for (int j = 0; j < 101; ++j) {
+				if (map[i][j] == true) {
+					cout << 1 << " ";
+				}
+				else {
+					cout << 0 << " ";
+				}
+			}
+			cout << "\n";
+		}
+		cout << "\n";*/
+	}
+	for (int i = 0; i < 101; ++i) {
+		for (int j = 0; j < 101; ++j) {
+			if (map[i][j] == true && map[i + 1][j] == true && map[i][j + 1] == true && map[i + 1][j + 1] == true) {
+				cnt++;
+			}
+		}
+	}
+	cout << cnt << "\n";
+}
