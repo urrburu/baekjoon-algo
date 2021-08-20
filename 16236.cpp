@@ -153,3 +153,93 @@ int main() {
         body++;
     }
 }
+
+#include<iostream>
+#include<queue>
+#include<vector>
+#include<algorithm>
+#include<tuple>
+#include<cstring>
+using namespace std;
+int n;
+int map[21][21];
+int dist[21][21];
+int dx[] = { 0,1,0,-1 };
+int dy[] = { 1,0,-1,0 };
+bool OOB(int x, int y) { return x < 0 || y < 0 || x >= n || y >= n; }
+tuple<int, int, int> bfs(int x, int y, int size) {
+    vector<tuple<int, int, int>> result;
+    queue<pair<int, int>> q;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            dist[i][j] = -1;
+        }
+    }
+    q.push({ x,y });
+    dist[x][y] = 0;
+    while (!q.empty()) {
+        int xx = q.front().first;
+        int yy = q.front().second;
+        q.pop();
+        /*for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                cout << dist[i][j] << " ";
+            }
+            cout << "\n";
+        }
+        cout << "\n";*/
+        for (int i = 0; i < 4; ++i) {
+            int nx = xx + dx[i];
+            int ny = yy + dy[i];
+            if (!OOB(nx, ny) && dist[nx][ny] == -1 && map[nx][ny] <= size) {
+                //cout << nx << " " << ny << " " << "\n";
+                if (map[nx][ny] == size || map[nx][ny] == 0) {
+                    q.push({ nx,ny });
+                    dist[nx][ny] = dist[xx][yy] + 1;
+                }
+                else {
+                    q.push({ nx,ny });
+                    dist[nx][ny] = dist[xx][yy] + 1;
+                    result.push_back(make_tuple(dist[nx][ny], nx, ny));
+
+                }
+            }
+        }
+    }
+    if (result.empty())return make_tuple(-1, -1, -1);
+    sort(result.begin(), result.end());
+    int rdis, rx, ry;
+    tie(rdis, rx, ry) = result[0];
+    map[rx][ry] = 0;
+    return result[0];
+}
+int main() {
+    int size = 2;
+    int x, y, sum = 0, dis;
+
+    cin >> n;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            cin >> map[i][j];
+            if (map[i][j] == 9) {
+                x = i; y = j;
+                map[x][y] = 0;
+            }
+        }
+    }
+    while (1) {
+
+        for (int i = 0; i < size; ++i) {
+
+            tie(dis, x, y) = bfs(x, y, size);
+            //cout << x << " " << y << " " << dis << "\n";
+            if (x == -1) {
+                cout << sum << "\n";
+                return 0;
+            }
+            sum += dis;
+        }
+        size += 1;
+    }
+}//솔브드. 가장먼저 찾은 고기가 가장 짧은 경로에 있을거라는 착각. 먹을 수 있는 고기를 다 간추린 다음
+//그 중에 가장 가까운 놈을 찾는 것. 문제의 의도대로 구현할것. 철저히.
