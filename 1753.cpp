@@ -55,3 +55,46 @@ int main() {
         else cout << dist[i];
     }
 }
+#include<iostream>
+#include<queue>
+#include<vector>
+
+#define MAX 20010
+using namespace std;
+
+
+int V, E, K;
+vector<pair<int, int>> ver[MAX];
+int dist[MAX];
+int main() {
+    cin >> V >> E >> K;
+    for (int i = 0; i < E; ++i) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        ver[u].push_back({ v,w });
+    }
+    for (int i = 0; i <= V; ++i) { dist[i] = 987654321; }
+    priority_queue<pair<int, int>> PQ;
+    // Priority_queue는 가장 큰 값이 top에 오는 자료구조. 
+    //기본은 less<자료형>으로 들어감. 이 경우 출력 순은 내림차순.
+    //반대로 greater<자료형> 일 경우,  선언 자체가 바뀌어야함 
+    //priority_queue<pair<int.int> , vector<pair<int,int>>, greater<int>> PQ; 의 방식이다.
+    //작은 놈 부터 나오며, 출력결과는 오름차순이 된다
+    PQ.push({ 0,K });
+    dist[K] = 0;
+    while (!PQ.empty()) {
+        int cost = -PQ.top().first;
+        int cur = PQ.top().second;
+        PQ.pop();
+
+        for (int i = 0; i < ver[cur].size(); ++i) {
+            int next = ver[cur][i].first;
+            int nCost = ver[cur][i].second;
+            if (dist[next] > cost + nCost) {
+                dist[next] = cost + nCost;
+                PQ.push({ -nCost, next });
+            }
+        }
+    }
+
+}
