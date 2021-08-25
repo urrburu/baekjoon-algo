@@ -98,3 +98,44 @@ int main() {
     }
 
 }
+
+
+#include<iostream>
+#include<queue>
+#include<vector>
+#include<algorithm>
+#define INF 987654321
+using namespace std;
+int dist[20001];
+vector<pair<int, int>> graph[20001];
+int main() {
+    int V, E, K;
+    cin >> V >> E;
+    cin >> K;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> PQ;
+    fill(dist, dist + 20001, INF);
+    for (int i = 0; i < E; ++i) {
+        int st, en, we;
+        cin >> st >> en >> we;
+        graph[st].push_back({ en,we });
+    }
+    dist[K] = 0;
+    PQ.push({ 0,K });
+    while (!PQ.empty()) {
+        int cur = PQ.top().second;
+        int cost = PQ.top().first;
+        PQ.pop();
+        for (int i = 0; i < graph[cur].size(); ++i) {
+            int next = graph[cur][i].first;
+            int n_dist = graph[cur][i].second;
+            if (dist[next] > cost + n_dist) {
+                dist[next] = cost + n_dist;
+                PQ.push({ dist[next], next });
+            }
+        }
+    }
+    for (int i = 1; i <= V; ++i) {
+        if (dist[i] == INF)cout << "INF\n";
+        else { cout << dist[i] << "\n"; }
+    }
+}//solved!!
