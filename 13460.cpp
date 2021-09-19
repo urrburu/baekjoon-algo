@@ -1,125 +1,110 @@
 #include <iostream>
 #include <vector>
-#include<queue>
-#include<deque>
-
-
+#include <string>
 using namespace std;
-int map[9][9] = { {0,} };
-int dx[4] = { 0,1,0,-1 };
-int dy[4] = { 1,0,-1,0 };
-queue<pair<int, int>> red;
-queue<pair<int, int>> blue;
-int target_x, target_y;
-int Inverse_Direction(int Cur_D)
-{
-    if (Cur_D == 0) return 1;
-    else if (Cur_D == 1) return 0;
-    else if (Cur_D == 2) return 3;
-    else if (Cur_D == 3) return 2;
+int dx[] = { 0,0,1,-1 };
+int dy[] = { 1,-1,0,0 };
+const int LIMIT = 10;
+vector<int> gen(int k) {
+    vector<int> a(LIMIT);
+    for (int i = 0; i < LIMIT; i++) {
+        a[i] = (k & 3);
+        k >>= 2;
+    }
+    return a;
 }
-
-void Move(int Rx, int Ry, int Bx, int By, int Cnt, int dir)
-{
-    if (Cnt >= Answer) return;
-    if (Cnt > 10) return;
-
-    bool Red_Flag = false;
-    bool Blue_Flag = false;
-
-    int nRx = Rx + dx[dir];
-    int nRy = Ry + dy[dir];
-    while (1)
-    {
-        if (MAP[nRx][nRy] == '#') break;
-        if (MAP[nRx][nRy] == 'O')
-        {
-            Red_Flag = true;
-            break;
+pair<bool, bool> simulate(vector<string>& a, int k, int& x, int& y) {
+    if (a[x][y] == '.') return make_pair(false, false);
+    int n = a.size();
+    int m = a[0].size();
+    bool moved = false;
+    while (true) {
+        int nx = x + dx[k];
+        int ny = y + dy[k];
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            return make_pair(moved, false);
         }
-        nRx = nRx + dx[dir];
-        nRy = nRy + dy[dir];
-    }
-    nRx = nRx - dx[dir];
-    nRy = nRy - dy[dir];
-
-    int nBx = Bx + dx[dir];
-    int nBy = By + dy[dir];
-    while (1)
-    {
-        if (MAP[nBx][nBy] == '#') break;
-        if (MAP[nBx][nBy] == 'O')
-        {
-            Blue_Flag = true;
-            break;
+        if (a[nx][ny] == '#') {
+            return make_pair(moved, false);
         }
-        nBx = nBx + dx[dir];
-        nBy = nBy + dy[dir];
-    }
-    nBx = nBx - dx[dir];
-    nBy = nBy - dy[dir];
-
-    if (Blue_Flag == true) return;
-    else
-    {
-        if (Red_Flag == true)
-        {
-            Answer = Min(Answer, Cnt);
-            return;
+        else if (a[nx][ny] == 'R' || a[nx][ny] == 'B') {
+            return make_pair(moved, false);
+        }
+        else if (a[nx][ny] == '.') {
+            swap(a[nx][ny], a[x][y]);
+            x = nx;
+            y = ny;
+            moved = true;
+        }
+        else if (a[nx][ny] == 'O') {
+            a[x][y] = '.';
+            moved = true;
+            return make_pair(moved, true);
         }
     }
-
-    if (nRx == nBx && nRy == nBy)
-    {
-        int Red_Dist = Move_Dist(Rx, Ry, nRx, nRy);
-        int Blue_Dist = Move_Dist(Bx, By, nBx, nBy);
-
-        if (Red_Dist > Blue_Dist)
-        {
-            nRx = nRx - dx[dir];
-            nRy = nRy - dy[dir];
-        }
-        else
-        {
-            nBx = nBx - dx[dir];
-            nBy = nBy - dy[dir];
-        }
-    }
-
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (i == dir) continue;
-        if (i == Inverse_Direction(dir)) continue;
-
-        Move(nRx, nRy, nBx, nBy, Cnt + 1, i);
-    }
+    return make_pair(false, false);
 }
-
-void Solution()
-{
-    for (int i = 0; i < 4; i++)
-    {
-        int x = Red.first;
-        int y = Red.second;
-        int xx = Blue.first;
-        int yy = Blue.second;
-
-        Move(x, y, xx, yy, 1, i);
+int check(vector<string> a, vector<int>& dir) {
+    int n = a.size();
+    int m = a[0].size();
+    int hx, hy, rx, ry, bx, by;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (a[i][j] == 'O') {
+                hx = i; hy = j;
+            }
+            else if (a[i][j] == 'R') {
+                rx = i; ry = j;
+            }
+            else if (a[i][j] == 'B') {
+                bx = i; by = j;
+            }
+        }
     }
-
-    if (Answer > 10 || Answer == 987654321) Answer = -1;
-    cout << Answer << endl;
+    int cnt = 0;
+    for (int k : dir) {
+        cnt += 1;
+        bool hole1 = false, hole2 = false;
+        while (true) {
+            auto p1 = simulate(a, k, rx, ry);
+            auto p2 = simulate(a, k, bx, by);
+            if (p1.first == false && p2.first == false) {
+                break;
+            }
+            if (p1.second) hole1 = true;
+            if (p2.second) hole2 = true;
+        }
+        if (hole2) return -1;
+        if (hole1) return cnt;
+    }
+    return -1;
 }
-
-void Solve()
-{
-    Input();
-    Solution();
+bool valid(vector<int>& dir) {
+    int l = dir.size();
+    for (int i = 0; i + 1 < l; i++) {
+        if (dir[i] == 0 && dir[i + 1] == 1) return false;
+        if (dir[i] == 1 && dir[i + 1] == 0) return false;
+        if (dir[i] == 2 && dir[i + 1] == 3) return false;
+        if (dir[i] == 3 && dir[i + 1] == 2) return false;
+        if (dir[i] == dir[i + 1]) return false;
+    }
+    return true;
 }
-
-
 int main() {
-
+    int n, m;
+    cin >> n >> m;
+    vector<string> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+    int ans = -1;
+    for (int k = 0; k < (1 << (LIMIT * 2)); k++) {
+        vector<int> dir = gen(k);
+        if (!valid(dir)) continue;
+        int cur = check(a, dir);
+        if (cur == -1) continue;
+        if (ans == -1 || ans > cur) ans = cur;
+    }
+    cout << ans << '\n';
     return 0;
 }

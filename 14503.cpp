@@ -132,3 +132,48 @@ int main() {
     cout << cnt << '\n';
     return 0;
 }
+
+
+#include<iostream>
+#include<algorithm>
+#include<vector>
+
+using namespace std;
+int n, m;
+int r, c, d;
+int room[55][55];
+int dx[] = { -1,0,1,0 };
+int dy[] = { 0,1,0,-1 };
+bool visit[55][55] = { false, };
+int change_dir(int dir) { return (dir + 3) % 4; }
+int main() {
+    cin >> n >> m;
+    cin >> r >> c >> d;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> room[i][j];
+        }
+    }
+    while (1) {
+        visit[r][c] = true;
+        int i = 0;
+        for (i = 0; i < 4; ++i) {
+            d = change_dir(d);
+            int nx = r + dx[d];	int ny = c + dy[d];
+            if (visit[nx][ny] == false && room[nx][ny] == 0) {
+                r = nx; c = ny; break;
+            }
+        }
+        if (i == 4) { r = r - dx[d]; c = c - dy[d]; }
+        if (room[r][c] == 1) {
+            int cnt = 0;
+            for (int i = 0; i < n; ++i) {
+                for (int j = 0; j < m; ++j) {
+                    if (visit[i][j] == true)cnt++;
+                }
+            }
+            cout << cnt << "\n";
+            return 0;
+        }
+    }
+}///더 나은 코드 완성
