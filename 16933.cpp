@@ -121,3 +121,67 @@ int main() {
     cout << ans << '\n';
     return 0;
 }//백준의 해결법은 밤의 변수까지 배열에 넣어서 컨트롤하는 것. 이 경우 위치와 벽을 뚫은 횟수를 고정하고 시간만 밤으로 바꿔준다.
+
+
+#include<iostream>
+#include<queue>
+#include<cstring>
+#include<tuple>
+using namespace std;
+int n, m, k;
+int map[1001][1001];
+int visit[1001][1001][11][2];
+int dx[] = { 0,1,0,-1 };
+int dy[] = { 1,0,-1,0 };
+bool OOB(int x, int y) { return x < 0 || y < 0 || x >= n || y >= m; }
+int main() {
+    memset(visit, -1, sizeof(visit));
+    cin >> n >> m >> k;
+    for (int i = 0; i < n; ++i) {
+        string s; cin >> s;
+        for (int j = 0; j < m; ++j) {
+            map[i][j] = s[j] - '0';
+        }
+    }
+
+
+    queue<tuple<int, int, int, int>> q;
+    q.push(make_tuple(0, 0, 0, 0));//0==day, 1==night;
+    visit[0][0][0][0] = 1;
+    int ans = 987654321;
+    while (!q.empty()) {
+        int x, y, brk, bri;
+        tie(x, y, brk, bri) = q.front(); q.pop();
+        if (x == n - 1 && y == m - 1) {
+            ans = min(ans, visit[x][y][brk][bri]);
+        }
+        for (int i = 0; i < 4; ++i) {
+            int nx = x + dx[i]; int ny = y + dy[i]; int nbri = (bri + 1) % 2;
+            if (!OOB(nx, ny) && map[nx][ny] == 0 && visit[nx][ny][brk][nbri] == -1) {
+                q.push(make_tuple(nx, ny, brk, nbri));
+                visit[nx][ny][brk][nbri] = visit[x][y][brk][bri] + 1;
+            }
+            else if (!OOB(nx, ny) && map[nx][ny] == 1 && visit[nx][ny][brk + 1][nbri] == -1 && bri == 0 && brk < k) {
+                q.push(make_tuple(nx, ny, brk + 1, nbri));
+                visit[nx][ny][brk + 1][nbri] = visit[x][y][brk][bri] + 1;
+            }
+            else if (!OOB(nx, ny) && map[nx][ny] == 1 && visit[x][y][brk][nbri] == -1 && bri == 1 && brk < k) {
+                q.push(make_tuple(x, y, brk, nbri));
+                visit[x][y][brk][nbri] = visit[x][y][brk][bri] + 1;
+            }
+        }
+    }
+    if (ans == 987654321) { cout << -1 << "\n"; return 0; }
+    cout << ans << "\n"; return 0;
+}//솔브코드! 방법을 기억해서 시도해봤지만 몇번 실패가 있었다. 
+//여기에서 중요한 것은, 확인하는 부분과 실제로 가는 부분을 일치시켜 주는 것이었다. 
+/*
+else if (!OOB(nx, ny) && map[nx][ny] == 1 && visit[nx][ny][brk+1][bri] == -1 && bri == 1 && brk < k) {
+                q.push(make_tuple(nx, ny, brk+1, bri));
+                visit[nx][ny][brk+1][bri] = visit[x][y][brk][bri] + 2;
+            }
+            이게 메모리 초과가 난 코드의 마지막 부분이었다. 자기가 갈 곳이 아니라 '앞으로'갈 곳을 확인하고 있었다.
+            최대한 동작을 단순하게 설계할 것.
+
+
+*/
