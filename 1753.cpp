@@ -139,3 +139,46 @@ int main() {
         else { cout << dist[i] << "\n"; }
     }
 }//solved!!
+
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<queue>
+
+using namespace std;
+int v, e;
+int dist[20001];
+int main() {
+
+    int start;
+    cin >> v >> e >> start;
+    vector<vector<pair<int, int> > > vec(v + 1, vector<pair<int, int> >());
+    for (int i = 0; i < e; ++i) {
+        int s, e, w; cin >> s >> e >> w;
+        vec[s].push_back({ w,e });
+
+    }
+    for (int i = 1; i <= v; ++i) { dist[i] = 987654321; }
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>> > pq;
+    pq.push({ 0,start });	dist[start] = 0;
+    while (!pq.empty()) {
+        int cur = pq.top().second;
+        int cost = pq.top().first;
+        pq.pop();
+        for (int i = 0; i < vec[cur].size(); ++i) {
+            int next = vec[cur][i].second;
+            int ncost = vec[cur][i].first;
+            if (dist[next] > cost + ncost) {
+                dist[next] = cost + ncost;
+                pq.push({ cost + ncost, next });
+            }
+        }
+
+    }
+    for (int i = 1; i <= v; ++i) {
+        if (dist[i] == 987654321) { cout << "INF" << "\n"; }
+        else {
+            cout << dist[i] << "\n";
+        }
+//로직은 맞추나 세세한 부분에서 오답. 천천히 생각하고 접근할것
