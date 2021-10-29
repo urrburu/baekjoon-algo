@@ -53,7 +53,57 @@ int main() {
 		}
 	}
 	dfs(0);
+}
 
+#include<iostream>
+#include<vector>
+using namespace std;
 
+int Sdoku[10][10];
+bool Complete = false;
+vector<pair<int, int>> Blank;
+bool Check(int x, int y, int num) {
+	int px = ((x - 1) / 3) * 3; int py = ((y - 1) / 3) * 3;
+	for (int i = px + 1; i < px + 4; ++i) {
+		for (int j = py + 1; j < py + 4; ++j) {
+			if (Sdoku[i][j] == num)return false;
+		}
+	}
+	for (int i = 1; i < 10; ++i) {
+		if (Sdoku[i][y] == num)return false;
+		if (Sdoku[x][i] == num)return false;
+	}
+	return true;
+}
 
+void dfs(int number) {
+	if (number == Blank.size()) { Complete = true; return; }
+	int tx = Blank[number].first;
+	int ty = Blank[number].second;
+	for (int target_num = 1; target_num < 10; ++target_num) {
+		if (Check(tx, ty, target_num) == true) {
+			Sdoku[tx][ty] = target_num;
+			dfs(number + 1);
+			if (Complete == true)return;
+			else {
+				Sdoku[tx][ty] = 0;
+			}
+		}
+	}
+
+}
+int main() {
+	for (int i = 1; i < 10; ++i) {
+		for (int j = 1; j < 10; ++j) {
+			cin >> Sdoku[i][j];
+			if (Sdoku[i][j] == 0) { Blank.push_back({ i,j }); }
+		}
+	}
+	dfs(0);
+	for (int i = 1; i < 10; ++i) {
+		for (int j = 1; j < 10; ++j) {
+			cout << Sdoku[i][j] << " ";
+		}
+		cout << "\n";
+	}
 }
