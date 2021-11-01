@@ -168,3 +168,82 @@ int main() {
 	}
 	return 0;
 }
+
+#include<iostream>
+#include<queue>
+#include<set>
+#include<map>
+using namespace std;
+int Map[1001][1001];
+int visit[1001][1001];
+int dx[] = { 0,1,0,-1 };
+int dy[] = { 1,0,-1,0 };
+map<int, int> Area;
+int n, m;
+bool OOB(int x, int y) { return x < 0 || y < 0 || x >= n || y >= m; }
+void Bfs(int x, int y, int Num) {
+	queue<pair<int, int>> que;
+	que.push({ x,y });
+	visit[x][y] = Num;
+	int areaCnt = 1;
+	while (!que.empty()) {
+		int xx = que.front().first;
+		int yy = que.front().second;
+		que.pop();
+		for (int i = 0; i < 4; ++i) {
+			int nx = xx + dx[i]; int ny = yy + dy[i];
+			if (!OOB(nx, ny) && visit[nx][ny] == 0 && Map[nx][ny] == 0) {
+				que.push({ nx,ny });
+				visit[nx][ny] = Num;
+				areaCnt++;
+			}
+		}
+	}
+	Area.insert({ Num, areaCnt });
+}
+int main() {
+	cin >> n >> m;
+	for (int i = 0; i < n; ++i) {
+		string s; cin >> s;
+		for (int j = 0; j < m; ++j) {
+			Map[i][j] = s[j] - '0';
+		}
+	}
+	int Numbering = 1;
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j) {
+			if (Map[i][j] == 0 && visit[i][j] == 0) {
+				Bfs(i, j, Numbering);
+				Numbering++;
+			}
+		}
+	}
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j) {
+			if (Map[i][j] == 1) {
+				set<int> S;
+				for (int k = 0; k < 4; ++k) {
+					int nx = i + dx[k];
+					int ny = j + dy[k];
+					if (!OOB(nx, ny) && visit[nx][ny] != 0)S.insert(visit[nx][ny]);
+				}
+				int sum = 1;
+				for (int al : S) { sum += Area.find(al)->second; sum %= 10; }
+				cout << sum;
+			}
+			else {
+				cout << 0;
+			}
+		}
+		cout << "\n";
+	}
+	/*for (int iter = 0; iter < Area.size(); ++iter) {
+		cout << Area[iter].first << " " << Area[iter].second << " \n";
+	}*/
+	/*for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < m; ++j) {
+			cout << visit[i][j];
+		}
+		cout << "\n";
+	}*/
+}
